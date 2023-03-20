@@ -8,22 +8,30 @@ const Shop = () => {
     const [products, setProducts] = useState([]);
     const [cart, setCart] = useState([])
 
-    useEffect(()=>{
+    useEffect(() => {
         fetch('products.json')
-        .then(res => res.json())
-        .then(data => setProducts(data))
-    },[])
+            .then(res => res.json())
+            .then(data => setProducts(data))
+    }, [])
 
-    useEffect(()=>{
+    useEffect(() => {
         const storedCart = getStoredCart();
-        for(const id in storedCart){
-            const addedProduct = products.find(product => product.id === id);
-            console.log(addedProduct);
-            
-        }
-    },[cart])
+        const savedCart = []
 
-    const handleAddToCart = product =>{
+        for (const id in storedCart) {
+            const addedProduct = products.find(product => product.id === id);
+            if (addedProduct) {
+                const quantity = storedCart[id]
+                addedProduct.quantity = quantity;
+                savedCart.push(addedProduct)
+                console.log(addedProduct);
+            }
+
+        }
+        setCart(savedCart)
+    }, [products])
+
+    const handleAddToCart = product => {
         const newCart = [...cart, product]
         setCart(newCart);
         addToDb(product.id)
@@ -32,18 +40,18 @@ const Shop = () => {
     return (
         <div className='shop-container'>
             <div className="products-container">
-              {
-                products.map(product => <Product
-                key={product.id}
-                product = {product}
-                handleAddToCart = {handleAddToCart}
-                />)
-              }
+                {
+                    products.map(product => <Product
+                        key={product.id}
+                        product={product}
+                        handleAddToCart={handleAddToCart}
+                    />)
+                }
             </div>
             <div className="cart-container">
-              <Cart
-              cart={cart}
-              />
+                <Cart
+                    cart={cart}
+                />
             </div>
         </div>
     );
